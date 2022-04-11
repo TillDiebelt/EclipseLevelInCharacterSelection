@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 using EclipseLevelInCharacterSelection.assets;
 
 namespace EclipseLevelInCharacterSelection
@@ -20,20 +17,7 @@ namespace EclipseLevelInCharacterSelection
                     }
                 }
             }
-        }
-        
-        public static void AddToTexture(this Texture2D texture, (byte, byte, byte, byte)[,] map, int offsetx, int offsety)
-        {
-            for (int x = 0; x < map.GetLength(0); x++)
-            {
-                for (int y = 0; y < map.GetLength(1); y++)
-                {
-                    (byte, byte, byte, byte) colorValues = map[map.GetLength(1) - 1 - y, x];
-                    Color32 color = new Color32(colorValues.Item1, colorValues.Item2, colorValues.Item3, colorValues.Item4);
-                    texture.SetPixel(x + offsetx, y + offsety, color);
-                }
-            }
-        }
+        }        
 
         public static void AddNumberToTexture(this Texture2D texture, int number)
         {
@@ -80,34 +64,49 @@ namespace EclipseLevelInCharacterSelection
         {
             int offsety = 0;
             int offsetx = 0;
+            int[,] map;
             switch (number)
             {                   
                 case 1:
-                    //should be default, but i like it this way
-                    texture.AddToTexture(NumbersBig.colors1, offsetx, offsety);
+                    map = NumbersBig.colors1;
                     break;
                 case 2:
-                    texture.AddToTexture(NumbersBig.colors2, offsetx, offsety);
+                    map = NumbersBig.colors2;
                     break;
                 case 3:
-                    texture.AddToTexture(NumbersBig.colors3, offsetx, offsety);
+                    map = NumbersBig.colors3;
                     break;
                 case 4:
-                    texture.AddToTexture(NumbersBig.colors4, offsetx, offsety);
+                    map = NumbersBig.colors4;
                     break;
                 case 5:
-                    texture.AddToTexture(NumbersBig.colors5, offsetx, offsety);
+                    map = NumbersBig.colors5;
                     break;
                 case 6:
-                    texture.AddToTexture(NumbersBig.colors6, offsetx, offsety);
+                    map = NumbersBig.colors6;
                     break;
                 case 7:
-                    texture.AddToTexture(NumbersBig.colors7, offsetx, offsety);
+                    map = NumbersBig.colors7;
                     break;
                 case 8:
-                    texture.AddToTexture(NumbersBig.colors8, offsetx, offsety);
+                    map = NumbersBig.colors8;
+                    break;
+                default:
+                    map = NumbersBig.colors1;
                     break;
             }
+            for (int x = 0; x < map.GetLength(0); x++)
+            {
+                for (int y = 0; y < map.GetLength(1); y++)
+                {
+                    int colorValue = map[map.GetLength(1) - 1 - y, x];
+                    Color32 color = NumbersBig.colors[colorValue];
+                    if (color.a != 0)
+                    {
+                        texture.SetPixel(x + offsetx, y + offsety, color);
+                    }
+                }
+            }            
         }
     }
 }

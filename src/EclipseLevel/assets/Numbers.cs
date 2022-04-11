@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EclipseLevelInCharacterSelection.assets
+﻿namespace EclipseLevelInCharacterSelection.assets
 {
     internal static class Numbers
     {

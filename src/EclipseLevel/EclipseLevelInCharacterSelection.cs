@@ -18,14 +18,14 @@ namespace EclipseLevelInCharacterSelection
 	
 	public class EclipseLevelInCharacterSelection : BaseUnityPlugin
 	{
-        //The Plugin GUID should be a unique ID for this plugin, which is human readable (as it is used in places like the config).
-        //If we see this PluginGUID as it is on thunderstore, we will deprecate this mod. Change the PluginAuthor and the PluginName !
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "depression_church";
         public const string PluginName = "EclipseLevelInCharacterSelection";
-        public const string PluginVersion = "1.0.2";
+        public const string PluginVersion = "1.1.0";
 
         private static Dictionary<string, bool> changedSurvivorIcon = new Dictionary<string, bool>();
+
+        //need to change this to work with modded survivors, dont hardcode it but i am to lazy to see how to do it better
         private static Dictionary<string, int> survivorDic = new Dictionary<string, int>() {
             { "Captain", 1 },{ "Merc", 9 },{ "Huntress", 6 },{ "Bandit2", 0 },{ "Loader", 7 },{ "Engi", 4 },{ "Commando", 2 },
             { "Toolbot", 10},{ "Mage", 8},{ "Treebot", 11},{ "Croco", 3},{ "Railgunner", 12},{ "VoidSurvivor", 13} };
@@ -34,6 +34,7 @@ namespace EclipseLevelInCharacterSelection
             { 10, "Toolbot"},{ 8, "Mage"},{ 11, "Treebot"},{ 3, "Croco"},{ 12, "Railgunner"},{ 13, "VoidSurvivor"} };
         public static Dictionary<string, int> characterLevels;
         
+        //would be cool if mod only shows in eclipse runs, but oh well
         public static bool isEclipseRun;
 
         public void Awake()
@@ -45,7 +46,6 @@ namespace EclipseLevelInCharacterSelection
             On.RoR2.UI.SurvivorIconController.Update += UpdateUiIcons;
 
             Log.LogInfo(nameof(Awake) + " done.");
-
         }
 
         private void UpdateUiIcons(On.RoR2.UI.SurvivorIconController.orig_Update orig, RoR2.UI.SurvivorIconController self)
@@ -57,7 +57,7 @@ namespace EclipseLevelInCharacterSelection
                 {
                     Texture2D tex_orig = duplicateTexture(ToTexture2D(self.survivorIcon.texture));
                     int eclipseLevel = characterLevels[survivorDicIntToString[Int32.Parse(self.survivorIndex.ToString())]];
-                    //why 120 and why blablabla, idk
+                    //i dont know if this icon can be smaller then 128 pixels, so safety first
                     if (tex_orig.width > 120)
                     {
                         tex_orig.AddBigNumberToTexture(eclipseLevel);
@@ -72,11 +72,10 @@ namespace EclipseLevelInCharacterSelection
                     self.survivorIcon.texture = (Texture)tex_orig;
                 }
                 changedSurvivorIcon.Add(self.survivorIndex.ToString(), true);
-
             }
         }
 
-        //argh
+        //helper function
         public static Texture2D ToTexture2D(Texture texture)
         {
             return Texture2D.CreateExternalTexture(
@@ -87,7 +86,7 @@ namespace EclipseLevelInCharacterSelection
                 texture.GetNativeTexturePtr());
         }
 
-        //argh2
+        //helper function
         Texture2D duplicateTexture(Texture2D source)
         {
             RenderTexture renderTex = RenderTexture.GetTemporary(
@@ -118,7 +117,6 @@ namespace EclipseLevelInCharacterSelection
             //does not work
             isEclipseRun = PreGameController.instance && PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun");
             
-            Log.LogInfo("loading eclipse data");
             var localUser = LocalUserManager.localUsersList[0]._userProfile;
             var xml = UserProfile.ToXml(localUser);
             //find eclipse levels of characters in xml
@@ -131,7 +129,7 @@ namespace EclipseLevelInCharacterSelection
                     var parse = character.Value.Split('.');
                     if (characterLevels.ContainsKey(parse[1]))
                     {
-                        characterLevels[parse[1]] = Math.Max(characterLevels[parse[1]], Int32.Parse(parse[2]));
+                        characterLevels[parse[1]] = Math.Min(Math.Max(characterLevels[parse[1]], Int32.Parse(parse[2])),8);
                     }
                     else
                     {
