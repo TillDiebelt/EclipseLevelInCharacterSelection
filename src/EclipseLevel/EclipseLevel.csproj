@@ -23,10 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Facepunch.Steamworks">
-      <HintPath>libs\Facepunch.Steamworks.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="KdTreeLib">
       <HintPath>libs\KdTreeLib.dll</HintPath>
       <Private>false</Private>

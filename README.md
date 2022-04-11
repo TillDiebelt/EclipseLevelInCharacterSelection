@@ -16,6 +16,9 @@ Add highest reached Eclipse level in Character Selection Screen
 
 ## Changelog
 
+**1.1.1**
+* Clean VS Project
+
 **1.1.0**
 * Fix Void Fiend
 * Even Better Quality

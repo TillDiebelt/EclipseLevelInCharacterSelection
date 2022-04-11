@@ -1,20 +1,13 @@
 using BepInEx;
-using R2API;
-using R2API.Utils;
 using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace EclipseLevelInCharacterSelection
-{
-    [BepInDependency(R2API.R2API.PluginGUID)]
-	
+{	
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-	
-    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI))]
 	
 	public class EclipseLevelInCharacterSelection : BaseUnityPlugin
 	{
