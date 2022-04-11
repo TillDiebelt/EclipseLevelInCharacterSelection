@@ -1,0 +1,10 @@
+﻿{
+	"name": "EclipseLevelInCharacterSelection",
+	"version_number": "1.0.2",
+	"website_url": "https://github.com/TillDiebelt/EclipseLevelInCharacterSelection",
+	"description": "Add highest reached Eclipse level in Character Selection Screen",
+	"dependencies": [
+		"bbepis-BepInExPack-5.4.9",
+		"RiskofThunder-HookGenPatcher-1.2.1"
+	]
+}
