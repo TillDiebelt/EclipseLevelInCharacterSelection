@@ -10,11 +10,12 @@ Add highest reached Eclipse level in Character Selection Screen
 # Known Issues:
 
 * Modded Survivors wont work
-* (Maybe) Overlapping Eclipse Levels if previous win and no game restart
 * Ugly Code
-* Client Only not working
 
 ## Changelog
+
+**1.1.2**
+* Now Client-Side Mod
 
 **1.1.1**
 * Clean VS Project

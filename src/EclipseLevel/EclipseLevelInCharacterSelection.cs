@@ -1,4 +1,5 @@
 using BepInEx;
+using R2API.Utils;
 using RoR2;
 using System;
 using System.Collections.Generic;
@@ -8,15 +9,15 @@ using UnityEngine;
 namespace EclipseLevelInCharacterSelection
 {	
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-	
-	public class EclipseLevelInCharacterSelection : BaseUnityPlugin
+    [NetworkCompatibility(CompatibilityLevel.NoNeedForSync, VersionStrictness.DifferentModVersionsAreOk)]
+    public class EclipseLevelInCharacterSelection : BaseUnityPlugin
 	{
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "depression_church";
         public const string PluginName = "EclipseLevelInCharacterSelection";
-        public const string PluginVersion = "1.1.0";
+        public const string PluginVersion = "1.1.2";
 
-        private static Dictionary<string, bool> changedSurvivorIcon = new Dictionary<string, bool>();
+        private static HashSet<string> changedSurvivorIcon = new HashSet<string>();
 
         //need to change this to work with modded survivors, dont hardcode it but i am to lazy to see how to do it better
         private static Dictionary<string, int> survivorDic = new Dictionary<string, int>() {
@@ -44,7 +45,7 @@ namespace EclipseLevelInCharacterSelection
         private void UpdateUiIcons(On.RoR2.UI.SurvivorIconController.orig_Update orig, RoR2.UI.SurvivorIconController self)
         {
             orig(self);
-            if (!changedSurvivorIcon.ContainsKey(self.survivorIndex.ToString())) //isEclipseRun && 
+            if (!changedSurvivorIcon.Contains(self.survivorIndex.ToString())) //isEclipseRun && 
             {
                 if (survivorDicIntToString.ContainsKey(Int32.Parse(self.survivorIndex.ToString())) && characterLevels.ContainsKey(survivorDicIntToString[Int32.Parse(self.survivorIndex.ToString())]))
                 {
@@ -64,7 +65,7 @@ namespace EclipseLevelInCharacterSelection
 
                     self.survivorIcon.texture = (Texture)tex_orig;
                 }
-                changedSurvivorIcon.Add(self.survivorIndex.ToString(), true);
+                changedSurvivorIcon.Add(self.survivorIndex.ToString());
             }
         }
 
@@ -135,7 +136,7 @@ namespace EclipseLevelInCharacterSelection
                 //i dont know why i try catch here but i parse things so why not
                 Log.LogError("Error while parsing character eclipse levels: " + e.Message);
             }
-            changedSurvivorIcon = new Dictionary<string, bool>();
+            changedSurvivorIcon = new HashSet<string>();
             
             orig(self);
         }
