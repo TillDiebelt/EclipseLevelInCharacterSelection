@@ -14,6 +14,9 @@ Add highest reached Eclipse level in Character Selection Screen
 
 ## Changelog
 
+**1.1.3**
+* fixed potential null pointer exception (thanks to jasonmarco)
+
 **1.1.2**
 * Now Client-Side Mod
 

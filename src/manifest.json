@@ -1,6 +1,6 @@
 ﻿{
 	"name": "EclipseLevelInCharacterSelection",
-	"version_number": "1.1.2",
+	"version_number": "1.1.3",
 	"website_url": "https://github.com/TillDiebelt/EclipseLevelInCharacterSelection",
 	"description": "Add highest reached Eclipse level in Character Selection Screen",
 	"dependencies": [
