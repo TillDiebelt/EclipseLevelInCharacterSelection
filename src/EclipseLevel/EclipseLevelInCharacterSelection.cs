@@ -108,16 +108,16 @@ namespace EclipseLevelInCharacterSelection
 
         private void AddEclipseLevels(On.RoR2.UI.CharacterSelectController.orig_Awake orig, RoR2.UI.CharacterSelectController self)
         {
-            //does not work
-            isEclipseRun = PreGameController.instance && PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun");
-            
-            var localUser = LocalUserManager.localUsersList[0]._userProfile;
-            var xml = UserProfile.ToXml(localUser);
-            //find eclipse levels of characters in xml
-            var characters = xml.Descendants("unlock").Where(x => x.Value.Contains("Eclipse."));
-            characterLevels = new Dictionary<string, int>();
             try
             {
+                //does not work
+                isEclipseRun = PreGameController.instance && PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun");
+            
+                var localUser = LocalUserManager.GetFirstLocalUser().userProfile;
+                var xml = UserProfile.ToXml(localUser);
+                //find eclipse levels of characters in xml
+                var characters = xml.Descendants("unlock").Where(x => x.Value.Contains("Eclipse."));
+                characterLevels = new Dictionary<string, int>();
                 foreach (var character in characters)
                 {
                     var parse = character.Value.Split('.');
