@@ -15,17 +15,17 @@ namespace EclipseLevelInCharacterSelection
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "depression_church";
         public const string PluginName = "EclipseLevelInCharacterSelection";
-        public const string PluginVersion = "1.1.2";
+        public const string PluginVersion = "1.1.4";
 
         private static HashSet<string> changedSurvivorIcon = new HashSet<string>();
 
         //need to change this to work with modded survivors, dont hardcode it but i am to lazy to see how to do it better
         private static Dictionary<string, int> survivorDic = new Dictionary<string, int>() {
             { "Captain", 1 },{ "Merc", 9 },{ "Huntress", 6 },{ "Bandit2", 0 },{ "Loader", 7 },{ "Engi", 4 },{ "Commando", 2 },
-            { "Toolbot", 10},{ "Mage", 8},{ "Treebot", 11},{ "Croco", 3},{ "Railgunner", 12},{ "VoidSurvivor", 13} };
+            { "Toolbot", 10},{ "Mage", 8},{ "Treebot", 11},{ "Croco", 3},{ "Railgunner", 12},{ "VoidSurvivor", 13},{ "Seeker", 14},{ "FalseSon", 15},{ "Chef", 16} };
         private static Dictionary<int, string> survivorDicIntToString = new Dictionary<int, string>() {
             { 1, "Captain" },{ 9, "Merc" },{ 6, "Huntress" },{ 0, "Bandit2" },{ 7, "Loader"},{ 4, "Engi"},{ 2, "Commando"},
-            { 10, "Toolbot"},{ 8, "Mage"},{ 11, "Treebot"},{ 3, "Croco"},{ 12, "Railgunner"},{ 13, "VoidSurvivor"} };
+            { 10, "Toolbot"},{ 8, "Mage"},{ 11, "Treebot"},{ 3, "Croco"},{ 12, "Railgunner"},{ 13, "VoidSurvivor"} ,{ 14, "Seeker"} ,{ 15, "FalseSon"} ,{ 16, "Chef"} };
         public static Dictionary<string, int> characterLevels;
         
         //would be cool if mod only shows in eclipse runs, but oh well
