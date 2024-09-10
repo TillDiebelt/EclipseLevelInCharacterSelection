@@ -1,44 +1,11 @@
 # EclipseLevelInCharacterSelection
 
-Add highest reached Eclipse level in Character Selection Screen
+Add the current Eclipse difficulty level icon for each survivor in the character selection screen *— client-side and vanilla-compatible*.
 
-# For Modders:
+## Screenshots
 
-* THIS IS AWFUL CODE, IF YOU WANT TO LEARN HOW TO WRITE MODS DONT LOOK HERE
-* if you know more about RoR2 Modding and Unity feel free to make a MR/PR and help fix this mess (i really should have worked with assets)
+#### Eclipse menu
+![screenshot of eclipse icons in the Eclipse menu](https://github.com/itsschwer/ror2-EclipseLevelInCharacterSelection/blob/master/xtra/demo-pre-eclipse-lobby.png?raw=true)
 
-# Known Issues:
-
-* Modded Survivors might not work
-* Ugly Code
-
-## Changelog
-
-**1.2.0**
-* modded survivors (and future vanilla) should now work (if Icon is resonable in size)
-* only visible in multiplayer eclipse
-* show eclipse level 1
-
-**1.1.4**
-* added SotS survivors
-
-**1.1.3**
-* fixed potential null pointer exception (thanks to jasonmarco)
-
-**1.1.2**
-* Now Client-Side Mod
-
-**1.1.1**
-* Clean VS Project
-
-**1.1.0**
-* Fix Void Fiend
-* Even Better Quality
-
-**1.0.2**
-
-* Improve Icon Quality
-
-**1.0.0**
-
-* Release
+#### Lobby menu
+![screenshot of eclipse icons in the Lobby menu](https://github.com/itsschwer/ror2-EclipseLevelInCharacterSelection/blob/master/xtra/demo-eclipse-lobby.png?raw=true)

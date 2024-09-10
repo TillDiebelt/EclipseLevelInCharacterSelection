@@ -1,147 +1,92 @@
 using BepInEx;
-using R2API.Utils;
 using RoR2;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace EclipseLevelInCharacterSelection
 {	
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [NetworkCompatibility(CompatibilityLevel.NoNeedForSync, VersionStrictness.DifferentModVersionsAreOk)]
     public class EclipseLevelInCharacterSelection : BaseUnityPlugin
 	{
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "depression_church";
         public const string PluginName = "EclipseLevelInCharacterSelection";
-        public const string PluginVersion = "1.2.0";
+        public const string PluginVersion = "2.0.0";
 
-        private static HashSet<string> changedSurvivorIcon = new HashSet<string>();
+        //todo: make config?
+        private readonly bool showUpcomingLevel = true; // if making configurable, will need to change the clamping and check EclipseRun.min/maxEclipseLevel to determine if no icon / a gold icon should be shown
+        private readonly float iconSizePercentageOfSurvivorIcon = 0.65f;
+        private readonly bool onlyShowInEclipseMenu = true;
 
-        public static Dictionary<string, int> characterLevels;
-
-        public void Awake()
+        private void Awake()
         {
             Log.Init(Logger);
 
-            On.RoR2.UI.CharacterSelectController.Awake += AddEclipseLevels;
-
-            On.RoR2.UI.SurvivorIconController.Update += UpdateUiIcons;
+            On.RoR2.UI.SurvivorIconController.Rebuild += SurvivorIconController_Rebuild;
 
             Log.LogInfo(nameof(Awake) + " done.");
         }
 
-        private void UpdateUiIcons(On.RoR2.UI.SurvivorIconController.orig_Update orig, RoR2.UI.SurvivorIconController self)
-        {
-            orig(self);
-
-            if(self == null || self.survivorDef == null || self.survivorDef.cachedName == null)
-            {
-                Log.LogWarning("EclipseLevelInCharacterSelection: SurvivorIconController or one of its used children was null");
-                return;
-            }
-
-            //This should only load in eclipse lobbies:
-            // && PreGameController.GameModeConVar.instance.GetString() == "EclipseRun"
-            //seems to be bugged for non hosts and only load sometimes
-            if (!changedSurvivorIcon.Contains(self.survivorIndex.ToString())) 
-            {
-                //if it was not parsed I guess it is 1
-                int eclipseLevel = 1;
-                if (characterLevels.ContainsKey(self.survivorDef.cachedName))
-                {
-                    eclipseLevel =  characterLevels[self.survivorDef.cachedName];
-                }
-                Texture2D tex_orig = duplicateTexture(ToTexture2D(self.survivorIcon.texture));
-                //i dont know if this icon can be smaller then 128 pixels, so safety first
-                if (tex_orig.width > 120)
-                {
-                    tex_orig.AddBigNumberToTexture(eclipseLevel);
-                }
-                else
-                {
-                    tex_orig.AddNumberToTexture(eclipseLevel);
-                }
-
-                tex_orig.Apply();
-
-                self.survivorIcon.texture = (Texture)tex_orig;
-
-                //avoid duplicate loading, this will break with scrolling survivor lists
-                changedSurvivorIcon.Add(self.survivorIndex.ToString());
-            }
-        }
-
-        //helper function
-        public static Texture2D ToTexture2D(Texture texture)
-        {
-            return Texture2D.CreateExternalTexture(
-                texture.width,
-                texture.height,
-                TextureFormat.RGB24,
-                false, false,
-                texture.GetNativeTexturePtr());
-        }
-
-        //helper function
-        private Texture2D duplicateTexture(Texture2D source)
-        {
-            RenderTexture renderTex = RenderTexture.GetTemporary(
-                        source.width,
-                        source.height,
-                        0,
-                        RenderTextureFormat.Default,
-                        RenderTextureReadWrite.Linear);
-
-            Graphics.Blit(source, renderTex);
-            RenderTexture previous = RenderTexture.active;
-            RenderTexture.active = renderTex;
-            Texture2D readableText = new Texture2D(source.width, source.height,TextureFormat.RGBA32,mipChain: false);
-            readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
-            readableText.Apply();
-            RenderTexture.active = previous;
-            RenderTexture.ReleaseTemporary(renderTex);
-            return readableText;
-        }
-
         private void OnDestroy()
         {
-            //i should do stuff here but idk
+            On.RoR2.UI.SurvivorIconController.Rebuild -= SurvivorIconController_Rebuild;
         }
 
-        private void AddEclipseLevels(On.RoR2.UI.CharacterSelectController.orig_Awake orig, RoR2.UI.CharacterSelectController self)
+        private void SurvivorIconController_Rebuild(On.RoR2.UI.SurvivorIconController.orig_Rebuild orig, RoR2.UI.SurvivorIconController self)
         {
-            try
-            {
-                var localUser = LocalUserManager.GetFirstLocalUser().userProfile;
-                var xml = UserProfile.ToXml(localUser);
-                //find eclipse levels of characters in xml
-                var characters = xml.Descendants("unlock").Where(x => x.Value.Contains("Eclipse."));
-                characterLevels = new Dictionary<string, int>();
-                foreach (var character in characters)
-                {
-                    var parse = character.Value.Split('.');
-                    string characterName = parse[1];
-                    int characterEclipseLevel = Int32.Parse(parse[2]);
-                    if (characterLevels.ContainsKey(characterName))
-                    {
-                        characterLevels[characterName] = Math.Max(characterLevels[characterName], characterEclipseLevel);
-                    }
-                    else
-                    {
-                        characterLevels.Add(characterName, characterEclipseLevel);
-                    }
+            orig(self);
+
+            try {
+                string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+#if DEBUG
+                // On clients (non-hosts), PreGameController.GameModeConVar is "ClassicRun" instead of "EclipseRun" (i.e. not synced?); it also doesn't update in pre-lobby menus
+                Log.LogWarning($"{PreGameController.GameModeConVar.instance.GetString()} | {activeSceneName} | {PreGameController.instance?.gameModeIndex} | {(PreGameController.instance ? GameModeCatalog.indexToName[(int)PreGameController.instance.gameModeIndex] : "null")}");
+#endif
+                bool isEclipseMenu = (activeSceneName == "eclipseworld" || (PreGameController.instance != null && PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun")));
+                if (onlyShowInEclipseMenu && !isEclipseMenu) return;
+                if (activeSceneName == "infinitetowerworld") return; // Never show in Simulacrum pre-lobby menu (for some reason the eclipse icon size become massive)
+
+                // DifficultyDef logic from RoR2.UI.EclipseRunScreenController.UpdateDisplayedSurvivor()
+                int completedLevel = EclipseRun.GetLocalUserSurvivorCompletedEclipseLevel(self.GetLocalUser(), self.survivorDef);
+                if (showUpcomingLevel) completedLevel++;
+                DifficultyDef difficultyDef = DifficultyCatalog.GetDifficultyDef(EclipseRun.GetEclipseDifficultyIndex(Mathf.Clamp(completedLevel, EclipseRun.minEclipseLevel, EclipseRun.maxEclipseLevel)));
+
+                if (difficultyDef == null) {
+                    Logger.LogWarning($"Failed to get {nameof(difficultyDef)} for {self.survivorDef.cachedName}");
+                }
+                else {
+                    //todo: somehow extract (or load addressables?) gold/completed sprites to indicate completion of E8 (vs. up to E8) -- see EclipseDifficultyMedalDisplay
+                    RawImage eclipseIcon = GetOrAddEclipseIcon(self.survivorIcon);
+                    eclipseIcon.texture = difficultyDef.GetIconSprite().texture;
+                    eclipseIcon.gameObject.SetActive(self.survivorIcon.color != Color.black); // Don't show icons for unavailable (silhouetted) characters
                 }
             }
-            catch (Exception e)
-            {
-                //i dont know why i try catch here but i parse things so why not
-                Log.LogError("EclipseLevelInCharacterSelection: unexpected error while parsing character eclipse levels: " + e.Message);
+            catch (Exception e) {
+                Log.LogError(e);
             }
-            changedSurvivorIcon = new HashSet<string>();
-            
-            orig(self);
+        }
+
+        private RawImage GetOrAddEclipseIcon(RawImage survivorIcon)
+        {
+            RawImage[] components = survivorIcon.GetComponentsInChildren<RawImage>();
+            for (int i = 0; i < components.Length; i++) {
+                if (components[i] != survivorIcon) return components[i];
+            }
+
+            Log.LogDebug($"Adding child \"EclipseIcon\" under \"{survivorIcon.name}\"");
+            GameObject obj = new GameObject("EclipseIcon", typeof(RectTransform));
+            obj.transform.SetParent(survivorIcon.transform);
+            obj.layer = survivorIcon.gameObject.layer;
+            RectTransform rect = obj.GetComponent<RectTransform>();
+            rect.localPosition = Vector3.zero;
+            rect.localScale = Vector3.one;
+            rect.localRotation = Quaternion.identity;
+            // bottom-left (//todo: could try make configurable)
+            rect.pivot = rect.anchorMin = rect.anchorMax = Vector2.zero;
+            rect.sizeDelta = Vector2.one * survivorIcon.rectTransform.rect.width * iconSizePercentageOfSurvivorIcon;
+
+            return obj.AddComponent<RawImage>();
         }
     }
 }
