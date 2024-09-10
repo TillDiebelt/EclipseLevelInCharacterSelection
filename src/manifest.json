@@ -5,7 +5,6 @@
 	"description": "Add highest reached Eclipse level in Character Selection Screen, now works with SotS survivors (still to lazy for modded)!",
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.2117",
-		"RiskofThunder-HookGenPatcher-1.2.4",
-		"RiskofThunder-R2API_Core-5.0.12"
+		"RiskofThunder-HookGenPatcher-1.2.4"
 	]
 }

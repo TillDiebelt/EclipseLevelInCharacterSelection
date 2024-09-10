@@ -1,5 +1,4 @@
 using BepInEx;
-using R2API.Utils;
 using RoR2;
 using System;
 using UnityEngine;
@@ -8,7 +7,6 @@ using UnityEngine.UI;
 namespace EclipseLevelInCharacterSelection
 {	
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [NetworkCompatibility(CompatibilityLevel.NoNeedForSync, VersionStrictness.DifferentModVersionsAreOk)]
     public class EclipseLevelInCharacterSelection : BaseUnityPlugin
 	{
         public const string PluginGUID = PluginAuthor + "." + PluginName;
