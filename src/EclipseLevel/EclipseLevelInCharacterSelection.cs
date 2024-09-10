@@ -19,9 +19,7 @@ namespace EclipseLevelInCharacterSelection
         //todo: make config?
         private readonly bool showUpcomingLevel = true;
         private readonly float iconSizePercentageOfSurvivorIcon = 0.6f;
-
-        //would be cool if mod only shows in eclipse runs, but oh well
-        public static bool isEclipseRun = true;
+        private readonly bool onlyShowInEclipseMenu = true;
 
         private void Awake()
         {
@@ -40,7 +38,14 @@ namespace EclipseLevelInCharacterSelection
         private void SurvivorIconController_Rebuild(On.RoR2.UI.SurvivorIconController.orig_Rebuild orig, RoR2.UI.SurvivorIconController self)
         {
             orig(self);
-            if (!isEclipseRun) return;
+
+            string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+#if DEBUG
+            Log.LogWarning($"{PreGameController.GameModeConVar.instance.GetString()} | {activeSceneName}");
+#endif
+            bool isEclipseMenu = (PreGameController.GameModeConVar.instance.GetString() == "EclipseRun" || activeSceneName == "eclipseworld");
+            if (onlyShowInEclipseMenu && !isEclipseMenu) return;
+            if (activeSceneName == "infinitetowerworld") return; // Never show in Simulacrum pre-lobby menu (for some reason the eclipse icon size become massive)
 
             try {
                 // DifficultyDef logic from RoR2.UI.EclipseRunScreenController.UpdateDisplayedSurvivor()
@@ -55,7 +60,7 @@ namespace EclipseLevelInCharacterSelection
                     //todo: somehow extract (or load addressables?) gold/completed sprites to indicate completion of E8 (vs. up to E8) -- see EclipseDifficultyMedalDisplay
                     RawImage eclipseIcon = GetOrAddEclipseIcon(self.survivorIcon);
                     eclipseIcon.texture = difficultyDef.GetIconSprite().texture;
-                    eclipseIcon.color = self.survivorIcon.color; // For unavailable (silhouetted) characters
+                    eclipseIcon.gameObject.SetActive(self.survivorIcon.color != Color.black); // Don't show icons for unavailable (silhouetted) characters
                 }
             }
             catch (Exception e) {
