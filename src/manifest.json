@@ -1,8 +1,8 @@
 ﻿{
 	"name": "EclipseLevelInCharacterSelection",
-	"version_number": "1.2.1",
+	"version_number": "2.0.0",
 	"website_url": "https://github.com/TillDiebelt/EclipseLevelInCharacterSelection",
-	"description": "Add highest reached Eclipse level in Character Selection Screen, now works with modded survivors (if icon is resonably sized)",
+	"description": "Add the current Eclipse difficulty level icon for each survivor in the character selection screen — client-side and vanilla-compatible.",
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.2117",
 		"RiskofThunder-HookGenPatcher-1.2.4"
