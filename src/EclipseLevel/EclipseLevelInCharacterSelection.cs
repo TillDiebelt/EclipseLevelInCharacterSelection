@@ -17,8 +17,8 @@ namespace EclipseLevelInCharacterSelection
         public const string PluginVersion = "1.1.4";
 
         //todo: make config?
-        private readonly bool showUpcomingLevel = true;
-        private readonly float iconSizePercentageOfSurvivorIcon = 0.6f;
+        private readonly bool showUpcomingLevel = true; // if making configurable, will need to change the clamping and check EclipseRun.min/maxEclipseLevel to determine if no icon / a gold icon should be shown
+        private readonly float iconSizePercentageOfSurvivorIcon = 0.65f;
         private readonly bool onlyShowInEclipseMenu = true;
 
         private void Awake()
