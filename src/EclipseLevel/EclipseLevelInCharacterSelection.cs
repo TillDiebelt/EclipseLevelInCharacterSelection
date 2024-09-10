@@ -37,15 +37,16 @@ namespace EclipseLevelInCharacterSelection
         {
             orig(self);
 
-            string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-#if DEBUG
-            Log.LogWarning($"{PreGameController.GameModeConVar.instance.GetString()} | {activeSceneName}");
-#endif
-            bool isEclipseMenu = (PreGameController.GameModeConVar.instance.GetString() == "EclipseRun" || activeSceneName == "eclipseworld");
-            if (onlyShowInEclipseMenu && !isEclipseMenu) return;
-            if (activeSceneName == "infinitetowerworld") return; // Never show in Simulacrum pre-lobby menu (for some reason the eclipse icon size become massive)
-
             try {
+                string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+#if DEBUG
+                // On clients (non-hosts), PreGameController.GameModeConVar is "ClassicRun" instead of "EclipseRun" (i.e. not synced?)
+                Log.LogWarning($"{PreGameController.GameModeConVar.instance.GetString()} | {activeSceneName} | {PreGameController.instance.gameModeIndex} | {GameModeCatalog.indexToName[(int)PreGameController.instance.gameModeIndex]}");
+#endif
+                bool isEclipseMenu = (activeSceneName == "eclipseworld" || PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun"));
+                if (onlyShowInEclipseMenu && !isEclipseMenu) return;
+                if (activeSceneName == "infinitetowerworld") return; // Never show in Simulacrum pre-lobby menu (for some reason the eclipse icon size become massive)
+
                 // DifficultyDef logic from RoR2.UI.EclipseRunScreenController.UpdateDisplayedSurvivor()
                 int completedLevel = EclipseRun.GetLocalUserSurvivorCompletedEclipseLevel(self.GetLocalUser(), self.survivorDef);
                 if (showUpcomingLevel) completedLevel++;
