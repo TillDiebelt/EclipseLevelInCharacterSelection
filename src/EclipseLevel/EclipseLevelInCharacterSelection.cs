@@ -40,10 +40,10 @@ namespace EclipseLevelInCharacterSelection
             try {
                 string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 #if DEBUG
-                // On clients (non-hosts), PreGameController.GameModeConVar is "ClassicRun" instead of "EclipseRun" (i.e. not synced?)
-                Log.LogWarning($"{PreGameController.GameModeConVar.instance.GetString()} | {activeSceneName} | {PreGameController.instance.gameModeIndex} | {GameModeCatalog.indexToName[(int)PreGameController.instance.gameModeIndex]}");
+                // On clients (non-hosts), PreGameController.GameModeConVar is "ClassicRun" instead of "EclipseRun" (i.e. not synced?); it also doesn't update in pre-lobby menus
+                Log.LogWarning($"{PreGameController.GameModeConVar.instance.GetString()} | {activeSceneName} | {PreGameController.instance?.gameModeIndex} | {(PreGameController.instance ? GameModeCatalog.indexToName[(int)PreGameController.instance.gameModeIndex] : "null")}");
 #endif
-                bool isEclipseMenu = (activeSceneName == "eclipseworld" || PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun"));
+                bool isEclipseMenu = (activeSceneName == "eclipseworld" || (PreGameController.instance != null && PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun")));
                 if (onlyShowInEclipseMenu && !isEclipseMenu) return;
                 if (activeSceneName == "infinitetowerworld") return; // Never show in Simulacrum pre-lobby menu (for some reason the eclipse icon size become massive)
 
