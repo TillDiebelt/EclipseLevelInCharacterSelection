@@ -9,10 +9,18 @@ Add highest reached Eclipse level in Character Selection Screen
 
 # Known Issues:
 
-* Modded Survivors wont work
+* Modded Survivors might not work
 * Ugly Code
 
 ## Changelog
+
+**1.2.0**
+* modded survivors (and future vanilla) should now work (if Icon is resonable in size)
+* only visible in multiplayer eclipse
+* show eclipse level 1
+
+**1.1.4**
+* added SotS survivors
 
 **1.1.3**
 * fixed potential null pointer exception (thanks to jasonmarco)

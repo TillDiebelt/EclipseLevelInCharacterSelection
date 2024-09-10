@@ -15,21 +15,11 @@ namespace EclipseLevelInCharacterSelection
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "depression_church";
         public const string PluginName = "EclipseLevelInCharacterSelection";
-        public const string PluginVersion = "1.1.4";
+        public const string PluginVersion = "1.2.0";
 
         private static HashSet<string> changedSurvivorIcon = new HashSet<string>();
 
-        //need to change this to work with modded survivors, dont hardcode it but i am to lazy to see how to do it better
-        private static Dictionary<string, int> survivorDic = new Dictionary<string, int>() {
-            { "Captain", 1 },{ "Merc", 9 },{ "Huntress", 6 },{ "Bandit2", 0 },{ "Loader", 7 },{ "Engi", 4 },{ "Commando", 2 },
-            { "Toolbot", 10},{ "Mage", 8},{ "Treebot", 11},{ "Croco", 3},{ "Railgunner", 12},{ "VoidSurvivor", 13},{ "Seeker", 14},{ "FalseSon", 15},{ "Chef", 16} };
-        private static Dictionary<int, string> survivorDicIntToString = new Dictionary<int, string>() {
-            { 1, "Captain" },{ 9, "Merc" },{ 6, "Huntress" },{ 0, "Bandit2" },{ 7, "Loader"},{ 4, "Engi"},{ 2, "Commando"},
-            { 10, "Toolbot"},{ 8, "Mage"},{ 11, "Treebot"},{ 3, "Croco"},{ 12, "Railgunner"},{ 13, "VoidSurvivor"} ,{ 14, "Seeker"} ,{ 15, "FalseSon"} ,{ 16, "Chef"} };
         public static Dictionary<string, int> characterLevels;
-        
-        //would be cool if mod only shows in eclipse runs, but oh well
-        public static bool isEclipseRun;
 
         public void Awake()
         {
@@ -45,26 +35,40 @@ namespace EclipseLevelInCharacterSelection
         private void UpdateUiIcons(On.RoR2.UI.SurvivorIconController.orig_Update orig, RoR2.UI.SurvivorIconController self)
         {
             orig(self);
-            if (!changedSurvivorIcon.Contains(self.survivorIndex.ToString())) //isEclipseRun && 
+
+            if(self == null || self.survivorDef == null || self.survivorDef.cachedName == null)
             {
-                if (survivorDicIntToString.ContainsKey(Int32.Parse(self.survivorIndex.ToString())) && characterLevels.ContainsKey(survivorDicIntToString[Int32.Parse(self.survivorIndex.ToString())]))
+                Log.LogWarning("EclipseLevelInCharacterSelection: SurvivorIconController or one of its used children was null");
+                return;
+            }
+
+            //This should only load in eclipse lobbies:
+            // && PreGameController.GameModeConVar.instance.GetString() == "EclipseRun"
+            //seems to be bugged for non hosts and only load sometimes
+            if (!changedSurvivorIcon.Contains(self.survivorIndex.ToString())) 
+            {
+                //if it was not parsed I guess it is 1
+                int eclipseLevel = 1;
+                if (characterLevels.ContainsKey(self.survivorDef.cachedName))
                 {
-                    Texture2D tex_orig = duplicateTexture(ToTexture2D(self.survivorIcon.texture));
-                    int eclipseLevel = characterLevels[survivorDicIntToString[Int32.Parse(self.survivorIndex.ToString())]];
-                    //i dont know if this icon can be smaller then 128 pixels, so safety first
-                    if (tex_orig.width > 120)
-                    {
-                        tex_orig.AddBigNumberToTexture(eclipseLevel);
-                    }
-                    else
-                    {
-                        tex_orig.AddNumberToTexture(eclipseLevel);
-                    }
-
-                    tex_orig.Apply();
-
-                    self.survivorIcon.texture = (Texture)tex_orig;
+                    eclipseLevel =  characterLevels[self.survivorDef.cachedName];
                 }
+                Texture2D tex_orig = duplicateTexture(ToTexture2D(self.survivorIcon.texture));
+                //i dont know if this icon can be smaller then 128 pixels, so safety first
+                if (tex_orig.width > 120)
+                {
+                    tex_orig.AddBigNumberToTexture(eclipseLevel);
+                }
+                else
+                {
+                    tex_orig.AddNumberToTexture(eclipseLevel);
+                }
+
+                tex_orig.Apply();
+
+                self.survivorIcon.texture = (Texture)tex_orig;
+
+                //avoid duplicate loading, this will break with scrolling survivor lists
                 changedSurvivorIcon.Add(self.survivorIndex.ToString());
             }
         }
@@ -81,7 +85,7 @@ namespace EclipseLevelInCharacterSelection
         }
 
         //helper function
-        Texture2D duplicateTexture(Texture2D source)
+        private Texture2D duplicateTexture(Texture2D source)
         {
             RenderTexture renderTex = RenderTexture.GetTemporary(
                         source.width,
@@ -110,9 +114,6 @@ namespace EclipseLevelInCharacterSelection
         {
             try
             {
-                //does not work
-                isEclipseRun = PreGameController.instance && PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun");
-            
                 var localUser = LocalUserManager.GetFirstLocalUser().userProfile;
                 var xml = UserProfile.ToXml(localUser);
                 //find eclipse levels of characters in xml
@@ -121,20 +122,22 @@ namespace EclipseLevelInCharacterSelection
                 foreach (var character in characters)
                 {
                     var parse = character.Value.Split('.');
-                    if (characterLevels.ContainsKey(parse[1]))
+                    string characterName = parse[1];
+                    int characterEclipseLevel = Int32.Parse(parse[2]);
+                    if (characterLevels.ContainsKey(characterName))
                     {
-                        characterLevels[parse[1]] = Math.Min(Math.Max(characterLevels[parse[1]], Int32.Parse(parse[2])),8);
+                        characterLevels[characterName] = Math.Max(characterLevels[characterName], characterEclipseLevel);
                     }
                     else
                     {
-                        characterLevels.Add(parse[1], Int32.Parse(parse[2]));
+                        characterLevels.Add(characterName, characterEclipseLevel);
                     }
                 }
             }
             catch (Exception e)
             {
                 //i dont know why i try catch here but i parse things so why not
-                Log.LogError("Error while parsing character eclipse levels: " + e.Message);
+                Log.LogError("EclipseLevelInCharacterSelection: unexpected error while parsing character eclipse levels: " + e.Message);
             }
             changedSurvivorIcon = new HashSet<string>();
             

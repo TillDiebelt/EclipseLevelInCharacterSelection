@@ -1,8 +1,8 @@
 ﻿{
 	"name": "EclipseLevelInCharacterSelection",
-	"version_number": "1.1.4",
+	"version_number": "1.2.1",
 	"website_url": "https://github.com/TillDiebelt/EclipseLevelInCharacterSelection",
-	"description": "Add highest reached Eclipse level in Character Selection Screen, now works with SotS survivors (still to lazy for modded)!",
+	"description": "Add highest reached Eclipse level in Character Selection Screen, now works with modded survivors (if icon is resonably sized)",
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.2117",
 		"RiskofThunder-HookGenPatcher-1.2.4"

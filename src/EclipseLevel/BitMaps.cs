@@ -53,7 +53,7 @@ namespace EclipseLevelInCharacterSelection
                     texture.AddToTexture(Numbers.black7, new Color32(100, 100, 100, 255), offsetx, offsety);
                     texture.AddToTexture(Numbers.blue7, new Color32(156, 196, 233, 255), offsetx, offsety);
                     break;
-                case 8:
+                default: //8+
                     texture.AddToTexture(Numbers.black8, new Color32(100, 100, 100, 255), offsetx, offsety);
                     texture.AddToTexture(Numbers.blue8, new Color32(156, 196, 233, 255), offsetx, offsety);
                     break;
@@ -91,14 +91,18 @@ namespace EclipseLevelInCharacterSelection
                 case 8:
                     map = NumbersBig.colors8;
                     break;
-                default:
-                    map = NumbersBig.colors1;
+                //if custom modes are possible and modded, I will still only draw an 8
+                //if you are a mod autor, find this line and require more then 8 to be drawn,
+                //AND have time to write an Issue, I might find the time to update this code.
+                default: 
+                    map = NumbersBig.colors8;
                     break;
             }
             for (int x = 0; x < map.GetLength(0); x++)
             {
                 for (int y = 0; y < map.GetLength(1); y++)
                 {
+                    //god do I hate Y Axis inversions
                     int colorValue = map[map.GetLength(1) - 1 - y, x];
                     Color32 color = NumbersBig.colors[colorValue];
                     if (color.a != 0)
