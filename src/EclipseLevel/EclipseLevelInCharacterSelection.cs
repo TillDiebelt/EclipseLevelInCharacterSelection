@@ -12,7 +12,7 @@ namespace EclipseLevelInCharacterSelection
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "depression_church";
         public const string PluginName = "EclipseLevelInCharacterSelection";
-        public const string PluginVersion = "2.0.0";
+        public const string PluginVersion = "2.1.0";
 
         private static Texture _GoldE8Icon;
         private static Texture GoldE8Icon => _GoldE8Icon ??= UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Texture>("RoR2/Base/EclipseRun/texDifficultyEclipse8IconGold.png").WaitForCompletion();
