@@ -14,6 +14,9 @@ namespace EclipseLevelInCharacterSelection
         public const string PluginName = "EclipseLevelInCharacterSelection";
         public const string PluginVersion = "2.0.0";
 
+        private static Texture _GoldE8Icon;
+        private static Texture GoldE8Icon => _GoldE8Icon ??= UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Texture>("RoR2/Base/EclipseRun/texDifficultyEclipse8IconGold.png").WaitForCompletion();
+
         internal static new Config Config { get; private set; }
 
         private void Awake()
@@ -48,15 +51,17 @@ namespace EclipseLevelInCharacterSelection
                 // DifficultyDef logic from RoR2.UI.EclipseRunScreenController.UpdateDisplayedSurvivor()
                 int completedLevel = EclipseRun.GetLocalUserSurvivorCompletedEclipseLevel(self.GetLocalUser(), self.survivorDef);
                 if (Config.ShowUpcomingLevel) completedLevel++;
+
+                if (completedLevel < EclipseRun.minEclipseLevel) return; // Don't show eclipse icon for survivors that have not beaten any eclipse level
+
                 DifficultyDef difficultyDef = DifficultyCatalog.GetDifficultyDef(EclipseRun.GetEclipseDifficultyIndex(Mathf.Clamp(completedLevel, EclipseRun.minEclipseLevel, EclipseRun.maxEclipseLevel)));
 
                 if (difficultyDef == null) {
                     Log.LogWarning($"Failed to get {nameof(difficultyDef)} for {self.survivorDef.cachedName}");
                 }
                 else {
-                    //todo: somehow extract (or load addressables?) gold/completed sprites to indicate completion of E8 (vs. up to E8) -- see EclipseDifficultyMedalDisplay
                     RawImage eclipseIcon = GetOrAddEclipseIcon(self.survivorIcon);
-                    eclipseIcon.texture = difficultyDef.GetIconSprite().texture;
+                    eclipseIcon.texture = completedLevel > EclipseRun.maxEclipseLevel ? GoldE8Icon : difficultyDef.GetIconSprite().texture;
                     eclipseIcon.gameObject.SetActive(self.survivorIcon.color != Color.black); // Don't show icons for unavailable (silhouetted) characters
                 }
             }

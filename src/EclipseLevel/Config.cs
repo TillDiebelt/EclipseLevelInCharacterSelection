@@ -13,8 +13,8 @@ namespace EclipseLevelInCharacterSelection
         private readonly ConfigEntry<float> iconSizePercentage;
         public float IconSizePercentage => iconSizePercentage.Value;
 
-        //todo: if making configurable, will need to change the clamping and check EclipseRun.min/maxEclipseLevel to determine if no icon / a gold icon should be shown
-        public bool ShowUpcomingLevel => true;
+        private readonly ConfigEntry<bool> showUpcomingLevel;
+        public bool ShowUpcomingLevel => showUpcomingLevel.Value;
 
 
         public Config(ConfigFile config)
@@ -29,6 +29,9 @@ namespace EclipseLevelInCharacterSelection
             iconSizePercentage = config.Bind<float>(Options, nameof(IconSizePercentage), 0.65f,
                 new ConfigDescription("Size of the eclipse icon relative to the survivor icon.",
                 new AcceptableValueRange<float>(0, 1)));
+
+            showUpcomingLevel = config.Bind<bool>(Options, nameof(ShowUpcomingLevel), true,
+                "Show the upcoming eclipse level instead of the highest completed eclipse level in the eclipse icon.");
         }
     }
 }
