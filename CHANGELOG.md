@@ -1,6 +1,13 @@
+-   **2.1.0**
+    -   add config options by @[itsschwer](https://github.com/itsschwer)
+          -   `OnlyShowInEclipseLobby` *(true)*
+          -   `IconSizePercentage` *(0.65)*
+          -   `ShowUpcomingLevel` *(true)*
+    -   *use [`6thmoon-OptionGenerator`](https://thunderstore.io/package/6thmoon/OptionGenerator/) for [`Risk of Options`](https://thunderstore.io/package/Rune580/Risk_Of_Options/) support!*
+
 -   **2.0.0**
 
-    -   complete rewrite by @itsschwer, all credit to him
+    -   complete [rewrite](https://github.com/TillDiebelt/EclipseLevelInCharacterSelection/pull/4) by @[itsschwer](https://github.com/itsschwer), all credit to them
     -   complete code cleanup
     -   added support for modded survivors
     -   icons now scale correctly in size

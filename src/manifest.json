@@ -1,6 +1,6 @@
 ﻿{
 	"name": "EclipseLevelInCharacterSelection",
-	"version_number": "2.0.0",
+	"version_number": "2.1.0",
 	"website_url": "https://github.com/TillDiebelt/EclipseLevelInCharacterSelection",
 	"description": "Add the current Eclipse difficulty level icon for each survivor in the character selection screen — client-side and vanilla-compatible.",
 	"dependencies": [

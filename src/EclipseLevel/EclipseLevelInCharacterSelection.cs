@@ -12,16 +12,17 @@ namespace EclipseLevelInCharacterSelection
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "depression_church";
         public const string PluginName = "EclipseLevelInCharacterSelection";
-        public const string PluginVersion = "2.0.0";
+        public const string PluginVersion = "2.1.0";
 
-        //todo: make config?
-        private readonly bool showUpcomingLevel = true; // if making configurable, will need to change the clamping and check EclipseRun.min/maxEclipseLevel to determine if no icon / a gold icon should be shown
-        private readonly float iconSizePercentageOfSurvivorIcon = 0.65f;
-        private readonly bool onlyShowInEclipseMenu = true;
+        private static Texture _GoldE8Icon;
+        private static Texture GoldE8Icon => _GoldE8Icon ??= UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Texture>("RoR2/Base/EclipseRun/texDifficultyEclipse8IconGold.png").WaitForCompletion();
+
+        internal static new Config Config { get; private set; }
 
         private void Awake()
         {
             Log.Init(Logger);
+            Config = new Config(base.Config);
 
             On.RoR2.UI.SurvivorIconController.Rebuild += SurvivorIconController_Rebuild;
 
@@ -44,21 +45,23 @@ namespace EclipseLevelInCharacterSelection
                 Log.LogWarning($"{PreGameController.GameModeConVar.instance.GetString()} | {activeSceneName} | {PreGameController.instance?.gameModeIndex} | {(PreGameController.instance ? GameModeCatalog.indexToName[(int)PreGameController.instance.gameModeIndex] : "null")}");
 #endif
                 bool isEclipseMenu = (activeSceneName == "eclipseworld" || (PreGameController.instance != null && PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun")));
-                if (onlyShowInEclipseMenu && !isEclipseMenu) return;
+                if (Config.OnlyShowInEclipseLobby && !isEclipseMenu) return;
                 if (activeSceneName == "infinitetowerworld") return; // Never show in Simulacrum pre-lobby menu (for some reason the eclipse icon size become massive)
 
                 // DifficultyDef logic from RoR2.UI.EclipseRunScreenController.UpdateDisplayedSurvivor()
                 int completedLevel = EclipseRun.GetLocalUserSurvivorCompletedEclipseLevel(self.GetLocalUser(), self.survivorDef);
-                if (showUpcomingLevel) completedLevel++;
+                if (Config.ShowUpcomingLevel) completedLevel++;
+
+                if (completedLevel < EclipseRun.minEclipseLevel) return; // Don't show eclipse icon for survivors that have not beaten any eclipse level
+
                 DifficultyDef difficultyDef = DifficultyCatalog.GetDifficultyDef(EclipseRun.GetEclipseDifficultyIndex(Mathf.Clamp(completedLevel, EclipseRun.minEclipseLevel, EclipseRun.maxEclipseLevel)));
 
                 if (difficultyDef == null) {
-                    Logger.LogWarning($"Failed to get {nameof(difficultyDef)} for {self.survivorDef.cachedName}");
+                    Log.LogWarning($"Failed to get {nameof(difficultyDef)} for {self.survivorDef.cachedName}");
                 }
                 else {
-                    //todo: somehow extract (or load addressables?) gold/completed sprites to indicate completion of E8 (vs. up to E8) -- see EclipseDifficultyMedalDisplay
                     RawImage eclipseIcon = GetOrAddEclipseIcon(self.survivorIcon);
-                    eclipseIcon.texture = difficultyDef.GetIconSprite().texture;
+                    eclipseIcon.texture = completedLevel > EclipseRun.maxEclipseLevel ? GoldE8Icon : difficultyDef.GetIconSprite().texture;
                     eclipseIcon.gameObject.SetActive(self.survivorIcon.color != Color.black); // Don't show icons for unavailable (silhouetted) characters
                 }
             }
@@ -74,7 +77,9 @@ namespace EclipseLevelInCharacterSelection
                 if (components[i] != survivorIcon) return components[i];
             }
 
+#if DEBUG
             Log.LogDebug($"Adding child \"EclipseIcon\" under \"{survivorIcon.name}\"");
+#endif
             GameObject obj = new GameObject("EclipseIcon", typeof(RectTransform));
             obj.transform.SetParent(survivorIcon.transform);
             obj.layer = survivorIcon.gameObject.layer;
@@ -84,7 +89,7 @@ namespace EclipseLevelInCharacterSelection
             rect.localRotation = Quaternion.identity;
             // bottom-left (//todo: could try make configurable)
             rect.pivot = rect.anchorMin = rect.anchorMax = Vector2.zero;
-            rect.sizeDelta = Vector2.one * survivorIcon.rectTransform.rect.width * iconSizePercentageOfSurvivorIcon;
+            rect.sizeDelta = Vector2.one * survivorIcon.rectTransform.rect.width * Config.IconSizePercentage;
 
             return obj.AddComponent<RawImage>();
         }
